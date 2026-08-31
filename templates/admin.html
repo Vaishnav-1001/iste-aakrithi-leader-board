@@ -1,0 +1,789 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            background: #222;
+            color: white;
+
+            padding: 18px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .logout {
+            color: white;
+            text-decoration: none;
+
+            background: #d9534f;
+
+            padding: 8px 15px;
+
+            border-radius: 5px;
+        }
+
+        .logout:hover {
+            background: #c9302c;
+        }
+
+
+        /* MAIN CONTAINER */
+
+        .container {
+            max-width: 1000px;
+
+            margin: 30px auto;
+
+            padding: 0 20px;
+        }
+
+
+        /* CARD */
+
+        .card {
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 10px;
+
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+
+            margin-bottom: 25px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+
+        /* FORM */
+
+        .form-row {
+            display: flex;
+
+            gap: 15px;
+
+            align-items: end;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+
+            font-weight: bold;
+
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 11px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 6px;
+
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+
+            border-color: #555;
+        }
+
+
+        /* BUTTON */
+
+        button {
+            padding: 11px 20px;
+
+            background: #222;
+
+            color: white;
+
+            border: none;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 15px;
+
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background: #444;
+        }
+
+
+        /* MESSAGES */
+
+        .message {
+            margin-top: 15px;
+
+            font-weight: bold;
+        }
+
+
+        /* TABLE */
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px;
+
+            border-bottom: 1px solid #ddd;
+
+            text-align: center;
+        }
+
+        th {
+            background: #222;
+
+            color: white;
+        }
+
+        td {
+            background: white;
+        }
+
+        .score {
+            font-weight: bold;
+
+            font-size: 18px;
+        }
+
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+
+            .form-row {
+                flex-direction: column;
+
+                align-items: stretch;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .navbar h1 {
+                font-size: 18px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ========================= -->
+<!-- NAVBAR -->
+<!-- ========================= -->
+
+<div class="navbar">
+
+    <h1>Admin Dashboard</h1>
+
+    <a
+        href="/admin/logout"
+        class="logout"
+    >
+        Logout
+    </a>
+
+</div>
+
+
+<div class="container">
+
+
+    <!-- ========================= -->
+    <!-- ADD NEW STUDENT -->
+    <!-- ========================= -->
+
+    <div class="card">
+
+        <h2>
+            Add New Student
+        </h2>
+
+
+        <form id="addStudentForm">
+
+            <div class="form-row">
+
+
+                <!-- STUDENT ID -->
+
+                <div class="form-group">
+
+                    <label for="new_student_id">
+                        Student ID
+                    </label>
+
+                    <input
+                        type="text"
+                        id="new_student_id"
+                        placeholder="Example: ST006"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- NAME -->
+
+                <div class="form-group">
+
+                    <label for="new_student_name">
+                        Student Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="new_student_name"
+                        placeholder="Enter student name"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- INITIAL SCORE -->
+
+                <div class="form-group">
+
+                    <label for="new_student_score">
+                        Initial Score
+                    </label>
+
+                    <input
+                        type="number"
+                        id="new_student_score"
+                        min="0"
+                        max="100"
+                        value="0"
+                        required
+                    >
+
+                </div>
+
+
+                <button type="submit">
+                    Add Student
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <p
+            id="addMessage"
+            class="message"
+        ></p>
+
+    </div>
+
+
+
+    <!-- ========================= -->
+    <!-- UPDATE SCORE -->
+    <!-- ========================= -->
+
+    <div class="card">
+
+        <h2>
+            Add Points
+        </h2>
+
+
+        <form id="updateForm">
+
+            <div class="form-row">
+
+
+                <!-- STUDENT ID -->
+
+                <div class="form-group">
+
+                    <label for="student_id">
+                        Student ID
+                    </label>
+
+                    <input
+                        type="text"
+                        id="student_id"
+                        placeholder="Example: ST001"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- NEW SCORE -->
+
+                <div class="form-group">
+
+                    <label for="score">
+                        Points Earned
+                    </label>
+
+                    <input
+                        type="number"
+                        id="score"
+                        min="0"
+                        max="100"
+                        placeholder="Enter points"
+                        required
+                    >
+
+                </div>
+
+
+                <button type="submit">
+                    Add Points
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <p
+            id="message"
+            class="message"
+        ></p>
+
+    </div>
+
+
+
+    <!-- ========================= -->
+    <!-- STUDENT LIST -->
+    <!-- ========================= -->
+
+    <div class="card">
+
+        <h2>
+            Student Scores
+        </h2>
+
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student ID
+                    </th>
+
+                    <th>
+                        Name
+                    </th>
+
+                    <th>
+                        Current Score
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for student in students %}
+
+                <tr>
+
+                    <td>
+                        {{ student.student_id }}
+                    </td>
+
+                    <td>
+                        {{ student.name }}
+                    </td>
+
+                    <td class="score">
+                        {{ student.score }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<!-- ========================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================= -->
+
+<script>
+
+
+/* ==================================
+   ADD NEW STUDENT
+================================== */
+
+document
+    .getElementById("addStudentForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const studentId =
+                document
+                .getElementById("new_student_id")
+                .value
+                .trim();
+
+
+            const name =
+                document
+                .getElementById("new_student_name")
+                .value
+                .trim();
+
+
+            const score =
+                document
+                .getElementById("new_student_score")
+                .value;
+
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "student_id",
+                studentId
+            );
+
+
+            formData.append(
+                "name",
+                name
+            );
+
+
+            formData.append(
+                "score",
+                score
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/admin/add-student",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                const message =
+                    document
+                    .getElementById("addMessage");
+
+
+                message.innerText =
+                    result.message;
+
+
+                if (result.success) {
+
+                    message.style.color =
+                        "green";
+
+
+                    document
+                    .getElementById(
+                        "new_student_id"
+                    )
+                    .value = "";
+
+
+                    document
+                    .getElementById(
+                        "new_student_name"
+                    )
+                    .value = "";
+
+
+                    document
+                    .getElementById(
+                        "new_student_score"
+                    )
+                    .value = "0";
+
+
+                    /*
+                       Refresh admin table
+                       after successful addition
+                    */
+
+                    setTimeout(
+                        function() {
+
+                            location.reload();
+
+                        },
+                        500
+                    );
+
+                }
+
+                else {
+
+                    message.style.color =
+                        "red";
+
+                }
+
+            }
+
+            catch(error) {
+
+                console.error(error);
+
+
+                const message =
+                    document
+                    .getElementById(
+                        "addMessage"
+                    );
+
+
+                message.innerText =
+                    "Something went wrong.";
+
+
+                message.style.color =
+                    "red";
+
+            }
+
+        }
+    );
+
+
+
+/* ==================================
+   UPDATE STUDENT SCORE
+================================== */
+
+document
+    .getElementById("updateForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const studentId =
+                document
+                .getElementById("student_id")
+                .value
+                .trim();
+
+
+            const score =
+                document
+                .getElementById("score")
+                .value;
+
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "student_id",
+                studentId
+            );
+
+
+            formData.append(
+                "score",
+                score
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/admin/update",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                const message =
+                    document
+                    .getElementById(
+                        "message"
+                    );
+
+
+                message.innerText =
+                    result.message;
+
+
+                if (result.success) {
+
+                    message.style.color =
+                        "green";
+
+
+                    document
+                    .getElementById(
+                        "student_id"
+                    )
+                    .value = "";
+
+
+                    document
+                    .getElementById(
+                        "score"
+                    )
+                    .value = "";
+
+
+                    /*
+                       Refresh admin table
+                       after successful update
+                    */
+
+                    setTimeout(
+                        function() {
+
+                            location.reload();
+
+                        },
+                        500
+                    );
+
+                }
+
+                else {
+
+                    message.style.color =
+                        "red";
+
+                }
+
+            }
+
+            catch(error) {
+
+                console.error(error);
+
+
+                const message =
+                    document
+                    .getElementById(
+                        "message"
+                    );
+
+
+                message.innerText =
+                    "Something went wrong.";
+
+
+                message.style.color =
+                    "red";
+
+            }
+
+        }
+    );
+
+</script>
+
+
+</body>
+
+</html>
+
