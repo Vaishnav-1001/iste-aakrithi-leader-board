@@ -1,218 +1,468 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Live Leaderboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-            padding: 30px;
-        }
+      :root {
+        --bg-color: #e5e7eb;
+        --card-bg: #f3f4f6;
+        --text-dark: #111827;
+        --text-muted: #4b5563;
+        --accent-blue: #1E3A8A;
+        --accent-blue-hover: #162b66;
+        --accent-gold: #d97706;
+        --row-bg: #ffffff;
+        --row-hover: #f8fafc;
+        --border-color: #d1d5db;
+      }
 
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: var(--bg-color);
+        background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+        background-size: 16px 16px;
+        color: var(--text-dark);
+        margin: 0;
+        padding: 30px 15px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
-        h1 {
-            text-align: center;
-        }
+      .leaderboard-card {
+        width: 100%;
+        max-width: 480px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 28px 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      }
 
-        .live {
-            text-align: center;
-            font-weight: bold;
-            font-size: 18px;
-            color: #222;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
+      .header-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin: 0 0 4px 0;
+        color: var(--text-dark);
+      }
 
-        /* Blinking red dot */
-        .live-dot {
-            width: 12px;
-            height: 12px;
-            background: red;
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
+      .tagline {
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 3px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
 
-        /* Blink animation */
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
-        }
+      .live-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent-secondary);
+        letter-spacing: 1px;
+        margin-bottom: 24px;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 25px;
-        }
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        background: #ef4444; /* Changed to red */
+        border-radius: 50%;
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); /* Red glow effect */
+        animation: blink 1.2s infinite ease-in-out;
+      }
 
-        th, td {
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
         }
+        50% {
+          opacity: 0.3;
+        }
+      }
 
-        th {
-            background: #222;
-            color: white;
-        }
+      /* Top 3 Podium Section */
+      .podium-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 16px;
+        margin-bottom: 28px;
+        padding: 10px 0;
+      }
 
-        .score {
-            font-weight: bold;
-            font-size: 20px;
-        }
+      .podium-player {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100px;
+      }
 
-        .search-box {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+      .podium-rank {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+      }
 
-        .search-box input {
-            width: 250px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
+      .podium-avatar-wrapper {
+        position: relative;
+        margin-bottom: 8px;
+      }
 
-        .search-box button {
-            padding: 10px 18px;
-            background: #222;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+      .crown-icon {
+        position: absolute;
+        top: -16px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 20px;
+      }
 
-        .search-box button:hover {
-            background: #444;
-        }
+      .podium-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid var(--accent-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .podium-player.rank-1 .podium-avatar {
+        width: 74px;
+        height: 74px;
+        border-color: var(--accent-gold);
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+        font-size: 32px;
+      }
+
+      .podium-player.rank-1 .podium-rank {
+        color: var(--accent-gold);
+        font-size: 16px;
+      }
+
+      .podium-name {
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        color: var(--text-dark);
+      }
+
+      .podium-score {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--accent-blue);
+      }
+
+      /* Search Controls */
+      .search-box {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .search-box input {
+        flex: 1;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: #ffffff;
+        color: var(--text-dark);
+        font-family: inherit;
+        font-size: 13px;
+        outline: none;
+      }
+
+      .search-box input:focus {
+        border-color: var(--accent-blue);
+      }
+
+      .search-box button {
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: none;
+        background: var(--accent-blue);
+        color: #ffffff;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .search-box button:hover {
+        background: var(--accent-blue-hover);
+      }
+
+      .search-box button.btn-reset {
+        background: #e5e7eb;
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+      }
+
+      .search-box button.btn-reset:hover {
+        background: #d1d5db;
+      }
+
+      /* Standard List Rows */
+      .leaderboard-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 380px;
+        overflow-y: auto;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        background: var(--row-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 10px 16px;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+      }
+
+      .row:hover {
+        background: var(--row-hover);
+        transform: translateY(-1px);
+      }
+
+      .rank-num {
+        font-size: 15px;
+        font-weight: 700;
+        width: 28px;
+        color: var(--text-muted);
+      }
+
+      .avatar-small {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #f3f4f6;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        margin-right: 14px;
+      }
+
+      .user-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .user-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+
+      .student-id {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .row-score {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--accent-blue);
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
+    <div class="leaderboard-card">
+      <h1 class="header-title">AAKRITHI '26</h1>
+      <div class="tagline">Evoke • Evolve • Evince</div>
+      <div class="live-status">
+        <span class="live-dot"></span> LIVE LEADERBOARD
+      </div>
 
-<div class="container">
-    <h1>🏆 Live Student Leaderboard</h1>
+      <div class="podium-container" id="podiumSection"></div>
 
-    <div class="search-box">
-        <input type="text" id="searchId" placeholder="Enter Student ID" onkeyup="if(event.key === 'Enter') searchStudent()">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchId"
+          placeholder="Search Student ID..."
+          onkeyup="if (event.key === 'Enter') searchStudent();"
+        />
         <button onclick="searchStudent()">Search</button>
-        <button onclick="showAll()">Show All</button>
+        <button class="btn-reset" onclick="showAll()">Reset</button>
+      </div>
+
+      <div class="leaderboard-list" id="scoreTable">
+        {% for student in students %}
+        <div class="row">
+          <div class="rank-num">{{ loop.index }}</div>
+          <div class="avatar-small">👤</div>
+          <div class="user-info">
+            <span class="user-name">{{ student.name }}</span>
+            <span class="student-id">ID: {{ student.student_id }}</span>
+          </div>
+          <div class="row-score">{{ student.score }}</div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
 
-    <p class="live">
-        <span class="live-dot"></span>
-        LIVE
-    </p>
+    <script>
+      let allStudents = [];
 
-    <table>
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Student ID</th>
-                <th>Name</th>
-                <th>Score</th>
-            </tr>
-        </thead>
-        <tbody id="scoreTable">
-            {% for student in students %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ student.student_id }}</td>
-                <td>{{ student.name }}</td>
-                <td class="score">{{ student.score }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+      function renderPodium(topThree) {
+        const podiumContainer = document.getElementById("podiumSection");
+        if (!topThree || topThree.length === 0) {
+          podiumContainer.innerHTML = "";
+          return;
+        }
 
-<script>
-let allStudents = [];
+        const first = topThree[0] || { name: "-", score: "-", student_id: "-" };
+        const second = topThree[1] || {
+          name: "-",
+          score: "-",
+          student_id: "-",
+        };
+        const third = topThree[2] || { name: "-", score: "-", student_id: "-" };
 
-function renderTable(studentsToRender) {
-    const tableBody = document.getElementById("scoreTable");
+        podiumContainer.innerHTML = `
+        <div class="podium-player rank-2">
+            <div class="podium-rank">2</div>
+            <div class="podium-avatar-wrapper">
+                <div class="podium-avatar">👤</div>
+            </div>
+            <div class="podium-name">${second.name}</div>
+            <div class="podium-score">${second.score !== "-" ? second.score.toLocaleString() : "-"}</div>
+        </div>
 
-    if (studentsToRender.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="4">No students found</td></tr>`;
-        return;
-    }
+        <div class="podium-player rank-1">
+            <div class="podium-rank">1</div>
+            <div class="podium-avatar-wrapper">
+                <span class="crown-icon">👑</span>
+                <div class="podium-avatar">👤</div>
+            </div>
+            <div class="podium-name">${first.name}</div>
+            <div class="podium-score">${first.score !== "-" ? first.score.toLocaleString() : "-"}</div>
+        </div>
 
-    tableBody.innerHTML = studentsToRender.map((student, index) => {
-        // Find original overall rank based on sorted order
-        const rank = allStudents.findIndex(s => s.student_id === student.student_id) + 1;
-        return `
-            <tr>
-                <td>${rank}</td>
-                <td>${student.student_id}</td>
-                <td>${student.name}</td>
-                <td class="score">${student.score}</td>
-            </tr>
+        <div class="podium-player rank-3">
+            <div class="podium-rank">3</div>
+            <div class="podium-avatar-wrapper">
+                <div class="podium-avatar">👤</div>
+            </div>
+            <div class="podium-name">${third.name}</div>
+            <div class="podium-score">${third.score !== "-" ? third.score.toLocaleString() : "-"}</div>
+        </div>
+    `;
+      }
+
+      function renderTable(studentsToRender) {
+        const listContainer = document.getElementById("scoreTable");
+
+        if (studentsToRender.length === 0) {
+          listContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px;">No students found</div>`;
+          return;
+        }
+
+        listContainer.innerHTML = studentsToRender
+          .map((student) => {
+            const rank =
+              allStudents.findIndex(
+                (s) => s.student_id === student.student_id,
+              ) + 1;
+
+            return `
+            <div class="row">
+                <div class="rank-num">${rank}</div>
+                <div class="avatar-small">👤</div>
+                <div class="user-info">
+                    <span class="user-name">${student.name}</span>
+                    <span class="student-id">ID: ${student.student_id}</span>
+                </div>
+                <div class="row-score">${student.score.toLocaleString()}</div>
+            </div>
         `;
-    }).join("");
-}
+          })
+          .join("");
+      }
 
-async function updateScores() {
-    try {
-        const response = await fetch("/api/scores");
-        allStudents = await response.json();
+      async function updateScores() {
+        try {
+          const response = await fetch("/api/scores");
+          allStudents = await response.json();
 
-        // Sort by score (Highest first)
-        allStudents.sort((a, b) => b.score - a.score);
+          allStudents.sort((a, b) => b.score - a.score);
 
-        const searchId = document.getElementById("searchId").value.trim().toUpperCase();
+          renderPodium(allStudents.slice(0, 3));
 
-        if (searchId === "") {
+          const searchId = document
+            .getElementById("searchId")
+            .value.trim()
+            .toUpperCase();
+
+          if (searchId === "") {
             renderTable(allStudents);
-        } else {
-            const filtered = allStudents.filter(student =>
-                student.student_id.toUpperCase().includes(searchId)
+          } else {
+            const filtered = allStudents.filter((student) =>
+              student.student_id.toUpperCase().includes(searchId),
             );
             renderTable(filtered);
+          }
+        } catch (error) {
+          console.error("Unable to fetch scores:", error);
         }
-    } catch (error) {
-        console.error("Unable to fetch scores:", error);
-    }
-}
+      }
 
-function searchStudent() {
-    const searchId = document.getElementById("searchId").value.trim().toUpperCase();
-    if (!searchId) {
+      function searchStudent() {
+        const searchId = document
+          .getElementById("searchId")
+          .value.trim()
+          .toUpperCase();
+        if (!searchId) {
+          renderTable(allStudents);
+          return;
+        }
+        const filtered = allStudents.filter((student) =>
+          student.student_id.toUpperCase().includes(searchId),
+        );
+        renderTable(filtered);
+      }
+
+      function showAll() {
+        document.getElementById("searchId").value = "";
         renderTable(allStudents);
-        return;
-    }
-    const filtered = allStudents.filter(student =>
-        student.student_id.toUpperCase().includes(searchId)
-    );
-    renderTable(filtered);
-}
+      }
 
-function showAll() {
-    document.getElementById("searchId").value = "";
-    renderTable(allStudents);
-}
-
-// Initial fetch & live interval polling every 2 seconds
-updateScores();
-setInterval(updateScores, 2000);
-</script>
-
-</body>
+      updateScores();
+      setInterval(updateScores, 2000);
+    </script>
+  </body>
 </html>
