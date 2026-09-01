@@ -249,6 +249,8 @@
               <td>{{ item.admin_username }}</td>
               <td>{{ item.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
               <td class="action-cell">
+                <!-- ONLY DISPLAY DELETE OPTION IF AWARDED BY CURRENT LOGGED-IN ADMIN -->
+                {% if item.admin_username == current_admin %}
                 <button
                   class="menu-btn"
                   onclick="toggleMenu(event, {{ item.id }})"
@@ -260,6 +262,7 @@
                     Delete Score
                   </button>
                 </div>
+                {% endif %}
               </td>
             </tr>
             {% else %}
@@ -323,7 +326,9 @@
 
         // Toggle current menu
         const targetMenu = document.getElementById(`menu-${id}`);
-        targetMenu.classList.toggle("show-menu");
+        if (targetMenu) {
+          targetMenu.classList.toggle("show-menu");
+        }
       }
 
       // Close menu when clicking outside
