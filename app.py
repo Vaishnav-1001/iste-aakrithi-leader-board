@@ -5,6 +5,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from urllib.parse import quote_plus
+from datetime import datetime
+from flask_login import current_user
 
 load_dotenv()
 app = Flask(__name__)
@@ -123,12 +125,22 @@ def admin():
 def update_score():
     student_id = request.form["student_id"].strip()
     points = int(request.form["score"])
+    task_name = request.form.get("task_name", "General Points").strip()
 
     student = Student.query.filter_by(student_id=student_id).first()
 
     if student:
         old_score = student.score
         student.score += points
+
+        # Record history entry
+        history_entry = ScoreHistory(
+            student_id=student_id,
+            admin_username=current_user.username,
+            points=points,
+            task_name=task_name
+        )
+        db.session.add(history_entry)
         db.session.commit()
 
         return jsonify({
@@ -139,6 +151,37 @@ def update_score():
         })
 
     return jsonify({"success": False, "message": "Student not found"})
+
+# =========================
+# DELETE SCORE
+# =========================
+
+@app.route("/admin/delete-score/<int:history_id>", methods=["POST"])
+@login_required
+def delete_score(history_id):
+    # Find the history record
+    history_item = db.session.get(ScoreHistory, history_id)
+    if not history_item:
+        return jsonify({"success": False, "message": "History record not found"}), 404
+
+    # Find the corresponding student
+    student = Student.query.filter_by(student_id=history_item.student_id).first()
+    if student:
+        # Deduct score and prevent negative total score
+        student.score = max(0, student.score - history_item.points)
+
+        # Delete history record
+        db.session.delete(history_item)
+        db.session.commit()
+
+        return jsonify({
+            "success": True, 
+            "message": "Score rolled back successfully!"
+        })
+
+    return jsonify({"success": False, "message": "Student not found"}), 404
+
+
 
 @app.route("/admin/add-student", methods=["POST"])
 @login_required
@@ -163,16 +206,27 @@ def add_student():
 
     return jsonify({"success": True, "message": "Student added successfully"})
 
+
+class ScoreHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.String(20), db.ForeignKey("student.student_id"), nullable=False)
+    admin_username = db.Column(db.String(50), nullable=False)
+    points = db.Column(db.Integer, nullable=False)
+    task_name = db.Column(db.String(200), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+
+
 @app.route("/admin/profile/<student_id>")
 @login_required
 def profile(student_id):
-    student = Student.query.filter_by(
-        student_id=student_id
-    ).first()
+    student = Student.query.filter_by(student_id=student_id).first()
     if not student:
         return "Student not found", 404
 
-    return render_template("profile.html",student=student)
+    history = ScoreHistory.query.filter_by(student_id=student_id).order_by(ScoreHistory.timestamp.desc()).all()
+    return render_template("profile.html", student=student, history=history)
 
 
 @app.route("/admin/logout")
