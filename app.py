@@ -163,6 +163,18 @@ def add_student():
 
     return jsonify({"success": True, "message": "Student added successfully"})
 
+@app.route("/admin/profile/<student_id>")
+@login_required
+def profile(student_id):
+    student = Student.query.filter_by(
+        student_id=student_id
+    ).first()
+    if not student:
+        return "Student not found", 404
+
+    return render_template("profile.html",student=student)
+
+
 @app.route("/admin/logout")
 @login_required
 def logout():
